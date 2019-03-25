@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+  <head>
+    <meta charset="utf-8">
+    <title>Image Classifier</title>
+    <style>
+      body{
+        background-color:#2c3e50;
+        background-position:center center;
+        background-attachment: fixed;
+        background-repeat:no-repeat;
+        background-size:cover;
+      }
+
+      button{
+        margin:10px;
+        width:120px;
+        height:50px;
+        border:1px solid lightslategray;
+        background-color:#57606f;
+        color:white;
+        font-size:30px;
+        -webkit-box-shadow: 6px 8px #747d8c;
+	      -moz-box-shadow:6px 8px #747d8c;
+        box-shadow: 6px 8px #747d8c;
+      }
+
+      button:hover{
+        -webkit-box-shadow: none;
+        -moz-box-shadow: none;
+        box-shadow: none;
+        transition-duration:0.5s;
+        transform: translate(5px,5px);
+      }
+
+
+      input{
+        width:300px;
+        height:65px;
+        line-height:50px;
+        font-size:20px;
+        border:1px solid #747d8c;
+        text-indent:15px;
+      }
+
+      canvas{
+        position:absolute;
+        left:50%;
+        top:50%;
+        transform:translate(-50%,-50%);
+        border:1px solid #57606f;
+        -webkit-box-shadow: 6px 8px #747d8c;
+	      -moz-box-shadow:6px 8px #747d8c;
+        box-shadow: 16px 16px #747d8c;
+      }
+
+      #train{
+        float:right;
+        position:absolute;
+        left:50%;
+        top:5%;
+        transform:translate(-50%,-5%);
+      }
+
+      .staff{
+        background:white;
+      }
+
+    </style>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/0.7.2/p5.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/0.7.2/addons/p5.dom.min.js"></script>
+    <script src="https://unpkg.com/ml5@0.1.1/dist/ml5.min.js"></script>
+  </head>
+  <body>
+
+    <div class="staff">
+      
+    </div>
+
+    <script type="text/javascript">
+      var mobileNet;
+      var classifier;
+      var sad,happy,train;
+      var video;
+      var input;
+      var br;
+      var state = 'test';
+      function ModelReady(){
+        console.log("Model Is Ready!!!");
+      }
+      function videoReady(){
+        console.log("Video Is Ready!!!");
+      }
+      function tainModel(loss){
+        if(loss == null){
+          console.log('Training Complete');
+          classifier.classify(gotResult);
+        }else{
+          console.log(loss);
+        }
+      }
+      function gotResult(error,result){
+          if (error) {
+            console.error(error);
+          }else{
+            setTimeout(function(){
+              return state = result
+              },500);
+            classifier.classify(gotResult);
+          }
+      }
+      function setup(){
+        createCanvas(700,500);
+        video = createCapture(VIDEO);
+        video.hide();
+        mobileNet = ml5.featureExtractor('MobileNet',ModelReady);
+        classifier = mobileNet.classification(video,videoReady);
+        createElement('br');
+        sad = createButton('Train').attribute('id','tst');;
+        input = createElement('input').attribute('placeholder', 'Enter The Name Of The State : ');
+        train = createButton('Quss').attribute('id','train');
+    
+        sad.mousePressed(function(){
+          classifier.addImage(input.elt.value);
+        });
+        train.mousePressed(function(){
+          classifier.train(tainModel);
+        });
+      }
+      function draw(){
+        //translate(width,0);
+        //scale(-1.0,1.0);
+        image(video,0,0,width,height);
+        fill(87, 96, 111);
+        noStroke();
+        rect(0,height-70,700,70);
+        stroke(255);
+        fill(255);
+        textSize(50);
+        text(state,10,height-20);
+      }
+    </script>
+  </body>
+</html>
